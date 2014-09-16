@@ -27,13 +27,8 @@ test1 = and $ map (\x -> x == hms2sec (sec2hms x)) [1,10..10000]
 type Point = (Double, Double)
 
 distance :: Point -> Point -> Double
-<<<<<<< HEAD
 distance (x1, y1) (x2, y2) = sqrt (sqr (x1-x2) + sqr(y1-y2))
-	where 
-		sqr x = x*x
-=======
-distance (x1, y1) (x2, y2) = undefined
->>>>>>> upstream/master
+	where sqr x = x*x
 
 -- triangle :: ??? -> (Double, Double)
 triangle :: Point -> Point -> Point -> (Double, Double)
@@ -61,21 +56,13 @@ nEven (x:xs) = if even x then 1 + nEven xs else nEven xs
 -- > 1 : [2,3,4]
 --   [1,2,3,4]
 doubleElems :: Num a => [a] -> [a]
-<<<<<<< HEAD
 doubleElems xs = [x*2 | x <- xs]
-=======
-doubleElems = undefined
->>>>>>> upstream/master
 
 -- 2.3
 -- Дан список целых чисел. Сформировать новый список, содержащий только нечетные элементы исходного.
 fltOdd :: Integral a => [a] -> [a]
 fltOdd [] = []
-<<<<<<< HEAD
 fltOdd (x:xs) = if odd x then x : fltOdd xs else fltOdd xs
-=======
-fltOdd (x:xs) = undefined
->>>>>>> upstream/master
 
 -- 2.4
 -- Написать следующие функции обработки списков:
@@ -137,9 +124,7 @@ split' [] = ([], [])
 split' [x] = ([x], [])
 split' xs = (left, drop (length left) xs)
 	where 
-		def_left (x1:x2:xs') = if x1==x2 then x1 : (
-									if length xs'>1 then def_left (x2:xs')
-									else [x2]) 
+		def_left (x1:x2:xs') = if x1==x2 then x1 : (if length xs'>1 then def_left (x2:xs') else [x2]) 
 								else [x1]
 		left = def_left xs
 
@@ -180,8 +165,7 @@ group' [] = []
 group' [x] = [[x]]
 group' xs = cur : group' (drop (length cur) xs)
 	where 
-		next_group (x1:x2:xs') = if x1==x2 then 
-									x1 : (if null xs' then [x2] else next_group (x2:xs')) 
+		next_group (x1:x2:xs') = if x1==x2 then x1 : (if null xs' then [x2] else next_group (x2:xs')) 
 								else [x1]
 		cur = next_group xs
 -- group' [1, 1, 1, 2, 3, 3, 4, 5, 5, 6]
