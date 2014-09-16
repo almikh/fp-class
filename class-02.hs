@@ -34,14 +34,13 @@ distance (x1, y1) (x2, y2) = sqrt (sqr (x1-x2) + sqr(y1-y2))
 -- triangle :: ??? -> (Double, Double)
 triangle :: Point -> Point -> Point -> (Double, Double)
 triangle a b c = (p, s)
-  where
-    p = distance a b + distance b c + distance c a
-    s = sqrt $ pp * (pp-l1) * (pp-l2) * (pp-l3)
-		where 
+	where
 		l1 = distance a b
 		l2 = distance b c
 		l3 = distance c a
+		p = l1 + l2 + l3
 		pp = (l1 + l2 + l3) / 2
+		s = sqrt $ pp * (pp-l1) * (pp-l2) * (pp-l3)
 
 -- Во всех следующих заданиях использование стандартных функций обработки списков не допускается.
 -- Все решения должны реализовываться рекурсивными функциями.
@@ -122,7 +121,15 @@ afterEach (x:xs) e = if length xs == 1 then x : e : xs
 -- совпадающие с первым элементом, и все остальные элементы, например:
 -- [1,1,1,2,3,1] -> ([1,1,1], [2,3,1]).
 split' :: Eq a =>  [a] -> ([a], [a])
-split' xs = undefined
+split' [] = ([], [])
+split' [x] = ([x], [])
+split' xs = (left, drop (length left) xs)
+	where 
+		def_left (x1:x2:xs') = if x1==x2 then x1 : (
+									if length xs'>1 then def_left (x2:xs')
+									else [x2]) 
+								else [x1]
+		left = def_left xs
 
 --3
 -- Даны типовые аннотации функций. Попытайтесь догадаться, что они делают, и напишите их
@@ -140,13 +147,44 @@ exist' (x:xs) y = if x==y then True else exist' xs y
 
 -- в) [a] -> Int -> [a]
 take' :: [a] -> Int -> [a]
-take' xs n = take n xs
+take' [] n = []
+take' xs 0 = []
+take' (x:xs) n = x : take' xs (n-1)
 
 -- г) a -> Int -> [a]
 repeat' :: a -> Int -> [a]
-repeat' x n = take n $ repeat x
+repeat' x 0 = []
+repeat' x n = x : repeat' x (n-1)
 
 -- д) [a] -> [a] -> [a]
+intersect' :: Eq a =>  [a] -> [a] -> [a]
+intersect' xs [] = []
+intersect' [] ys = []
+intersect' (x:xs) ys = if x `elem` ys then x : intersect' xs ys else intersect' xs ys
+
 -- е) Eq a => [a] -> [[a]]
+group' :: Eq a => [a] -> [[a]]
+group' [] = []
+group' [x] = [[x]]
+group' xs = cur : group' (drop (length cur) xs)
+	where 
+		next_group (x1:x2:xs') = if x1==x2 then 
+									x1 : (if null xs' then [x2] else next_group (x2:xs')) 
+								else [x1]
+		cur = next_group xs
+-- group' [1, 1, 1, 2, 3, 3, 4, 5, 5, 6]
+-- > [[1, 1, 1], [2], [3, 3], [4], [5, 5], [6]]
+		
 -- ж) [a] -> [(Int, a)]
+zip' :: Eq a => [a] -> [(Int, a)]
+zip' xs = map func $ group' xs
+	where func xs = (length xs, head xs)
+
 -- з) Eq a => [a] -> [a]
+nub' :: Eq a => [a] -> [a]
+nub' [] = []
+nub' (x:xs) = x : (nub' (erase' x xs))
+	where 
+		erase' y [] = []			  
+		erase' y (x:xs) = if y==x then (if null xs then [] else erase' y xs)
+						  else x : (if null xs then [] else erase' y xs)
