@@ -40,6 +40,17 @@ f11f = filter (\x -> x<0 || odd x)
   b) преобразовать декартовы координаты в полярные.
 -}
 
+type Point = (Double, Double)
+
+fromQuarter :: Int -> [Point] -> [Point]
+fromQuarter q = filter (\x -> defQuarter x == q)
+	where defQuarter (x, y) = 
+		if x>=0 then (if y>=0 then 1 else 4)
+		else (if y>=0 then 2 else 3)
+
+dec2pol :: Point -> Point
+dec2pol (x, y) = (sqrt (x^2 + y^2), atan (y/x)) 
+
 {-
  1.3 Дан список слов.
   a) Преобразовать все слова к верхнему регистру.
@@ -68,13 +79,24 @@ f13c f = filter (\x -> (not . null) x && head x == f)
 nats :: [Integer]
 nats = iterate (+1) 0
 
-even_nums :: [Integer]
-even_nums = iterate (+2) 2
+evenNums :: [Integer]
+evenNums = iterate (+2) 2
 
-eng_alph :: [Char]
-eng_alph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
+{--(((1+1)/2 == 1) +1)/2 ==1)  ... --}
+f2c :: [Int]
+f2c = repeat 1
+
+engAlph :: [Char]
+engAlph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
 	where func x = toEnum (fromEnum x + 1)
 
+f2e :: Int -> [String]
+f2e n = map supp (filter (\x -> length x <= n) (map toBin (take (2^n) (iterate (+1) 0))))
+	where 
+		toBin 0 = []
+		toBin n = toBin (n `div` 2) ++ [toEnum ((n `mod` 2) + fromEnum '0')]
+		supp = (\x -> (replicate (n - length x) '0') ++ x)
+		
 {-
 3. Группировка списков.
   a) Дан список символов. Сгруппировать подряд идущие символы по принципу: цифры — не цифры — ...
@@ -86,6 +108,12 @@ eng_alph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
      длиной n элементов со сдвигом относительно предыдущего подсписка на m элементов.
   e) Дан список. Определить длину самого длинного подсписка, содержащего подряд идущие одинаковые элементы.
 -}
+
+import Data.List
+
+f3a :: Char a => [a] -> [[a]]
+f3a = groupBy (\x y -> (isDigit x && isDigit y) || (not isDigit x && not isDigit y))
+	where isDigit x = x `elem` ['1'..'2']
 
 f3d :: [a] -> Int -> Int -> [[a]]
 f3d xs n m = undefined
