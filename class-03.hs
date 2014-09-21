@@ -85,10 +85,8 @@ nats = iterate (+1) 0
 evenNums :: [Integer]
 evenNums = iterate (+2) 2
 
-{--(((1+1)/2 == 1) +1)/2 ==1)  ... --}
 f2c :: [Int]
-f2c = undefined
-	where nextEl prev = (1+prev)/2
+f2c =  iterate (\x -> (1+x) `div` 2) 1
 
 engAlph :: [Char]
 engAlph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
