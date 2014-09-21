@@ -2,7 +2,7 @@
 Явная рекурсия в решениях хотя и допускается, но не приветствуется. Старайтесь обходиться стандартными
 функциями, используя при этом создание функций «на лету». Пытайтесь максимально упростить уже написанные
 решения, применяя подходящие функции из модуля Data.List и любых других модулей. Перед выполнением заданий
-изучите примеры из лекции по функциям высшего порядка. 
+изучите примеры из лекции по функциям высшего порядка.
 -}
 
 {-
@@ -15,6 +15,9 @@
   e) отфильтровать его, оставив в списке только отрицательные числа;
   f) удалить из него все положительные чётные числа.
 -}
+
+import Data.Char
+import Data.List
 
 f11a :: Integral a => [a] -> [a]
 f11a = map (*2)
@@ -44,12 +47,12 @@ type Point = (Double, Double)
 
 fromQuarter :: Int -> [Point] -> [Point]
 fromQuarter q = filter (\x -> defQuarter x == q)
-	where defQuarter (x, y) = 
+	where defQuarter (x, y) =
 		if x>=0 then (if y>=0 then 1 else 4)
 		else (if y>=0 then 2 else 3)
 
 dec2pol :: Point -> Point
-dec2pol (x, y) = (sqrt (x^2 + y^2), atan (y/x)) 
+dec2pol (x, y) = (sqrt (x^2 + y^2), atan (y/x))
 
 {-
  1.3 Дан список слов.
@@ -84,7 +87,8 @@ evenNums = iterate (+2) 2
 
 {--(((1+1)/2 == 1) +1)/2 ==1)  ... --}
 f2c :: [Int]
-f2c = repeat 1
+f2c = undefined
+	where nextEl prev = (1+prev)/2
 
 engAlph :: [Char]
 engAlph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
@@ -92,11 +96,11 @@ engAlph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
 
 f2e :: Int -> [String]
 f2e n = map supp (filter (\x -> length x <= n) (map toBin (take (2^n) (iterate (+1) 0))))
-	where 
+	where
 		toBin 0 = []
 		toBin n = toBin (n `div` 2) ++ [toEnum ((n `mod` 2) + fromEnum '0')]
 		supp = (\x -> (replicate (n - length x) '0') ++ x)
-		
+
 {-
 3. Группировка списков.
   a) Дан список символов. Сгруппировать подряд идущие символы по принципу: цифры — не цифры — ...
@@ -109,18 +113,34 @@ f2e n = map supp (filter (\x -> length x <= n) (map toBin (take (2^n) (iterate (
   e) Дан список. Определить длину самого длинного подсписка, содержащего подряд идущие одинаковые элементы.
 -}
 
-import Data.List
+f3a :: [Char] -> [[Char]]
+f3a = groupBy (\x y -> (isDigit x && isDigit y) || ((not . isDigit) x && (not . isDigit) y))
 
-f3a :: Char a => [a] -> [[a]]
-f3a = groupBy (\x y -> (isDigit x && isDigit y) || (not isDigit x && not isDigit y))
-	where isDigit x = x `elem` ['1'..'2']
+f3b :: [Point] -> [[Point]]
+f3b = groupBy (\x y -> defQuarter x == defQuarter y)
+	where defQuarter (x, y) =
+		if x>=0 then (if y>=0 then 1 else 4)
+		else (if y>=0 then 2 else 3)
+
+f3c :: [a] -> Int -> [[a]]
+f3c xs n
+  | null xs = []
+  | otherwise = f : f3c s n
+      where (f, s) = splitAt n xs
 
 f3d :: [a] -> Int -> Int -> [[a]]
-f3d xs n m = undefined
+f3d xs n m
+  | null xs = []
+  | otherwise = f : f3d s n m
+    where f = take n xs
+          s = drop m xs
+
+f3e :: Eq a => [a] -> Int
+f3e = maximum . (map length) . group
 
 -- Должно быть True
 test_f3d = f3d [1..10] 4 2 == [[1,2,3,4],[3,4,5,6],[5,6,7,8],[7,8,9,10],[9,10]]
-
+-- True
 {-
 4. Разные задачи.
  a) Дан текст в виде строки символов, содержащий среди прочего числовые данные. Посчитать количество
@@ -133,3 +153,27 @@ test_f3d = f3d [1..10] 4 2 == [[1,2,3,4],[3,4,5,6],[5,6,7,8],[7,8,9,10],[9,10]]
     называется элемент, больший своих соседей.
  e) Дан список. Продублировать все его элементы.
 -}
+
+f4a :: String -> Int
+f4a xs = length $ filter func $ words xs
+    where func xs = length (filter isDigit xs)==length xs
+
+f4b :: (Int -> Bool) -> Int -> Int -> Int
+f4b pred a b = sum $ filter pred $ dropWhile (\x -> x<a) $ takeWhile (\x -> x<b) fibs
+	where fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+
+f4c :: Int -> String -> [Char]
+f4c n s = ((map snd) . (take n) . reverse . sort) $ map func $ (group . sort) s
+	where func x = (length x, head x)
+
+f4d :: (Num a, Ord a) => [a] -> [a]
+f4d xs
+	| length xs < 3 = []
+	| otherwise =  map getElem $ filter isMax groups
+		where
+			groups = filter (\x -> length x == 3) $ f3d xs 3 1
+			isMax [x1, x2, x3] = x2>x1 && x2>x3
+			getElem [x1, x2, x3] = x2
+
+f4e :: [a] -> [a]
+f4e = foldr (\x acc -> x : x : acc) []
