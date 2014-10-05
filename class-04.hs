@@ -251,14 +251,22 @@ f3e_test3 = f3e 8 == False -- тест 3
    что необходимо дополнительно найти сам путь (к примеру, в виде закодированных направлений спуска:
    0 - влево, 1 - вправо). В решении допускается использование любых стандартных функций.
 -}
-{-
+
+{- Путь - направление спуска -}
+{- Сам с трудом понимаю, как у меня ЭТО работает =) -}
 findPath :: [[Int]] -> (Int, [Int])
-findPath tri = maximum . foldl downstep ((head . head) tri, []) tail tri
+findPath (top : other) = maximum $ foldl downstep acc lst
   where
-    downstep upper lower = zipWith zipFun lower $ zipWith max' (0:upper) (upper ++ [0])
-    max' a b = if a>b then (a, 0) else (b, 1)
-    zipFun (val1, path1) (val2, path2) = (val1+val2, path2 : path1)
--}
+    acc = [(head top, [])]
+    lst = (map (map (\x -> (x, []))) other)
+    downstep upper lower = zipWith zipFun lower $ zipWith max' ((0, []):upper) (upper ++ [(0, [])])
+    max' (a, pa) (b, pb) = if a>b then (a, pa++[1]) else (b, pb++[0])
+    zipFun (val1, _) (val2, path) = (val1 + val2, path)
+
+f4_test1 = findPath [[3],[7,4],[2,4,6],[8,5,9,3]] == (23, [0, 1, 1])
+f4_test2 = findPath [[7],[3,8],[8,1,0],[2,7,4,4],[4,5,2,6,5]] == (30, [0, 0, 1, 0])
+f4_test3 = findPath [[55],[94,48],[95,30,96],[77,71,26,67]] == (321, [0, 0, 0])
+
 {-
  5. Пусть числовые матрицы представлены списками строк. Реализовать следующие функции:
   1) транспонирование матрицы;
