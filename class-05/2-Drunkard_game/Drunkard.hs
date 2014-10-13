@@ -4,7 +4,7 @@ module Drunkard where
 
 {-
   1. Определить типы данных, необходимые для представления игральной карты в игре «Пьяница»,
-  учитывая, что всего в колоде 54 карты.
+  учитывая, что всего в колоде 52 карты.
 -}
 
 data Suit = Spades | Clubs | Diamonds | Hearts
@@ -16,20 +16,13 @@ data Value =
           Ten | Jack | Queen | King | Ace
           deriving (Show, Eq, Ord)
 
-data ValueEx = GrayJoker | ColorJoker
-          deriving (Show, Eq, Ord)
-
-data Card = Card { value :: Value, suits :: Suit } |
-            Joker ValueEx
+data Card = Card { value :: Value, suits :: Suit }
           deriving (Show, Eq)
 
 -- 2. Определить функцию, проверяющую, что две переданные ей карты одной масти.
 
 sameSuit :: Card -> Card -> Bool
 sameSuit (Card _ suits1) (Card _ suits2) = suits1 == suits2
-sameSuit (Card _ _) (Joker _) = True
-sameSuit (Joker _) (Card _ _) = True
-sameSuit (Joker _) (Joker _) = True
 
 {-
   3. Определить функцию, проверяющую, что переданная ей первой карта старше второй
@@ -38,9 +31,6 @@ sameSuit (Joker _) (Joker _) = True
 -}
 
 beats :: Card -> Card -> Ordering
-beats (Card _ _) (Joker _) = GT
-beats (Joker _) (Card _ _) = LT
-beats (Joker _) (Joker _) = EQ
 c1 `beats` c2
   | (value c1 > value c2) = GT
   | (value c1 < value c2) = LT
@@ -91,8 +81,8 @@ game cards = aux_game (cards, 0)
 -}
 cards1_from_pair1 = [
   Card Three Clubs, Card Seven Clubs,
-  Card Four Spades, Joker ColorJoker,
-  Card Two Diamonds, Card Three Clubs,
+  Card Two Diamonds, Card Three Spades,
+  Card Three Hearts, Card Queen Diamonds,
   Card King Clubs, Card Seven Hearts,
   Card Queen Spades, Card Four Diamonds]
 
@@ -104,60 +94,60 @@ cards2_from_pair1 = [
   Card King Hearts, Card Eight Clubs]
 
 cards1_from_pair2 = [
-  Card Three Clubs, Card Seven Clubs,
-  Card Four Spades, Joker ColorJoker,
-  Card Two Diamonds, Card Three Clubs,
-  Card King Clubs, Card Seven Hearts,
-  Card Queen Spades, Card Four Diamonds]
+  Card Four Clubs, Card Ten Clubs,
+  Card Five Diamonds, Card Two Clubs,
+  Card Ace Clubs, Card Ace Hearts,
+  Card Ace Clubs, Card Jack Hearts,
+  Card Nine Spades, Card Eight Diamonds]
 
 cards2_from_pair2 = [
-  Card King Spades, Card Seven Hearts,
-  Card Two Diamonds, Card Jack Clubs,
-  Card Six Hearts, Card Nine Clubs,
+  Card Three Spades, Card Seven Hearts,
+  Card Three Diamonds, Card Two Clubs,
+  Card Eight Hearts, Card Nine Clubs,
   Card Ace Clubs, Card Seven Diamonds,
   Card King Hearts, Card Eight Clubs]
 
 cards1_from_pair3 = [
   Card Three Clubs, Card Seven Clubs,
-  Card Four Spades, Joker ColorJoker,
-  Card Two Diamonds, Card Three Clubs,
+  Card Two Diamonds, Card Three Spades,
+  Card Three Hearts, Card Queen Diamonds,
   Card King Clubs, Card Seven Hearts,
   Card Queen Spades, Card Four Diamonds]
 
 cards2_from_pair3 = [
-  Card King Spades, Card Seven Hearts,
-  Card Two Diamonds, Card Jack Clubs,
-  Card Six Hearts, Card Nine Clubs,
+  Card Three Spades, Card Seven Hearts,
+  Card Three Diamonds, Card Two Clubs,
+  Card Eight Hearts, Card Nine Clubs,
   Card Ace Clubs, Card Seven Diamonds,
   Card King Hearts, Card Eight Clubs]
 
 cards1_from_pair4 = [
-  Card Three Clubs, Card Seven Clubs,
-  Card Four Spades, Joker ColorJoker,
-  Card Two Diamonds, Card Three Clubs,
-  Card King Clubs, Card Seven Hearts,
-  Card Queen Spades, Card Four Diamonds]
+  Card Queen Clubs, Card King Spades,
+  Card Nine Diamonds, Card King Hearts,
+  Card Ace Spades, Card Seven Hearts,
+  Card Ace Diamonds, Card Two Clubs,
+  Card King Hearts, Card Eight Clubs]
 
 cards2_from_pair4 = [
-  Card King Spades, Card Seven Hearts,
-  Card Two Diamonds, Card Jack Clubs,
-  Card Six Hearts, Card Nine Clubs,
-  Card Ace Clubs, Card Seven Diamonds,
-  Card King Hearts, Card Eight Clubs]
+  Card Five Clubs, Card Four Hearts,
+  Card Two Diamonds, Card Three Spades,
+  Card Three Hearts, Card Five Diamonds,
+  Card King Clubs, Card Seven Hearts,
+  Card Two Hearts, Card Three Clubs]
 
 cards1_from_pair5 = [
   Card Queen Clubs, Card King Spades,
-  Card King Spades, Joker ColorJoker,
   Card Nine Diamonds, Card King Hearts,
-  Card King Clubs, Joker GrayJoker,
+  Card Three Spades, Card Seven Hearts,
+  Card Three Diamonds, Card Two Clubs,
   Card Queen Spades, Card King Diamonds]
 
 cards2_from_pair5 = [
-  Card Two Spades, Card Seven Hearts,
-  Card Two Diamonds, Card Four Clubs,
-  Card Six Hearts, Card Nine Clubs,
+  Card Ace Clubs, Card Ace Hearts,
+  Card Four Hearts, Card Jack Hearts,
+  Card Ace Diamonds, Card Seven Diamonds,
   Card Nine Clubs, Card Five Diamonds,
-  Card Two Hearts, Card Five Clubs]
+  Card Two Hearts, Card King Clubs]
 
 game_test1 = game (cards1_from_pair1, cards2_from_pair1)
 game_test2 = game (cards1_from_pair2, cards2_from_pair2)
