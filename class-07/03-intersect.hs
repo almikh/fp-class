@@ -5,11 +5,17 @@
 -}
 
 import System.Environment
+import qualified Data.IntSet as Set
 
-readNumFile :: Num a => FilePath -> IO [a]
-readNumFile = undefined
+readNumFile :: FilePath -> IO [Int]
+readNumFile file = do
+  contents <- readFile file
+  return (map (\x -> (read x) :: Int) $ words contents)
 
-solve :: Num a => [[a]] -> (Int, [a])
-solve = undefined
+
+solve :: [[Int]] -> (Int, [Int])
+solve s = (length result, result)
+  where
+    result = Set.toAscList $ Set.unions $ map (Set.fromList) s
 
 main = getArgs >>= mapM readNumFile >>= print.solve

@@ -1,0 +1,6 @@
+LOAD a FROM mat1.txt
+LOAD b FROM mat2.txt
+c AS SUM a a
+WRITE c TO sum_mat.txt
+d AS PROD a b
+WRITE d TO prod_mat.txt
