@@ -2,7 +2,7 @@
 Явная рекурсия в решениях хотя и допускается, но не приветствуется. Старайтесь обходиться стандартными
 функциями, используя при этом создание функций «на лету». Пытайтесь максимально упростить уже написанные
 решения, применяя подходящие функции из модуля Data.List и любых других модулей. Перед выполнением заданий
-изучите примеры из лекции по функциям высшего порядка. 
+изучите примеры из лекции по функциям высшего порядка.
 -}
 
 {-
@@ -17,8 +17,22 @@
 -}
 
 f11a :: Integral a => [a] -> [a]
-f11a = map undefined
+f11a = map (*2)
 
+f11b :: Integral a => [a] -> [a]
+f11b = map (\x -> if even x then x*2 else x)
+
+f11c :: Integral a => [a] -> [a]
+f11c = map (\x -> if odd x then 0 else x)
+
+f11d :: Integral a => a -> [a] -> [a]
+f11d k = filter (<=k)
+
+f11e :: Integral a => [a] -> [a]
+f11e = filter (<0)
+
+f11f :: Integral a => [a] -> [a]
+f11f = filter (\x -> x<0 || odd x)
 {-
  1.2 Дан список декартовых координат точек на плоскости (пар вещественных чисел).
      Преобразовать его следующим образом:
@@ -34,19 +48,32 @@ f11a = map undefined
 -}
 
 f13a :: [String] -> [String]
-f13a = map undefined
+f13a = map (map (\x -> if x >= 'a' && x <= 'z' then toEnum (fromEnum x - 32) else x))
+
+f13b :: Int -> [String] -> [String]
+f13b n = filter (\x -> length x<n)
+
+f13c :: Char -> [String] -> [String]
+f13c f = filter (\x -> (not . null) x && head x == f)
 
 {-
 2. Формирование числовых последовательностей (iterate).
  a) Список натуральных чисел, начиная с 0.
  b) Список чётных чисел.
- c) Список элементов последовательности: a_0=1, a_n=(1+a_{n-1})/2.
+ c) Список элементов последовательности: a0=1, an=(1+an-1)/2.
  d) Список символов английского алфавита.
  e) Список строк, представляющих n-значные двоичные числа.
 -}
 
 nats :: [Integer]
-nats = iterate undefined 0
+nats = iterate (+1) 0
+
+even_nums :: [Integer]
+even_nums = iterate (+2) 2
+
+eng_alph :: [Char]
+eng_alph = (take 26 (iterate func 'a')) ++ (take 26 (iterate func 'A'))
+	where func x = toEnum (fromEnum x + 1)
 
 {-
 3. Группировка списков.
