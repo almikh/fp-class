@@ -1,7 +1,7 @@
 
 {-
   Имеется тип данных для представления арифметических выражений с целыми числами
-  и функция для вычисления его значения. 
+  и функция для вычисления его значения.
 -}
 
 data Expr = I Int            -- целочисленная константа
@@ -13,6 +13,10 @@ eval (I n) = n
 eval (e1 `Add` e2) = eval e1 + eval e2
 eval (e1 `Mul` e2) = eval e1 * eval e2
 
+isAdd :: Expr -> Bool
+isAdd (_ `Add` _) = True
+isAdd _ = False
+
 {-
   Реализуйте для этого типа экземпляр класса типов Eq так,
   чтобы равными считались любые два выражения, значения которых
@@ -20,7 +24,7 @@ eval (e1 `Mul` e2) = eval e1 * eval e2
 -}
 
 instance Eq Expr where
-  (==) = undefined
+  lhs == rhs = (eval lhs) == (eval rhs)
 
 {-
   Реализуйте для этого типа экземпляр класса типов Show так,
@@ -30,7 +34,13 @@ instance Eq Expr where
 -}
 
 instance Show Expr where
-  show = undefined
+  show (I e) = show e
+  show (e1 `Add` e2) = (show e1) ++ "+" ++ (show e2)
+  show (e1 `Mul` e2)
+    | isAdd e1 && isAdd e2 = "(" ++ (show e1) ++ ")*(" ++ (show e2) ++ ")"
+    | isAdd e1 = "(" ++ (show e1) ++ ")*" ++ (show e2)
+    | isAdd e2 = (show e1) ++ "*(" ++ (show e2) ++ ")"
+    | otherwise = (show e1) ++ "*" ++ (show e2)
 
 -- Тесты
 test = all (== expr 4) exprs
@@ -47,3 +57,7 @@ test = all (== expr 4) exprs
 {-
   Напишите экземпляр класса типов Ord, который сравнивает выражения по их значению.
 -}
+
+instance Ord Expr where
+  e1 `compare` e2 = (eval e1) `compare` (eval e2)
+  e1 <= e2 = (eval e1) < (eval e2)

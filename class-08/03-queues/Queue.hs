@@ -12,4 +12,3 @@ instance AbstractQueue Queue where
   enqueue (QueueImpl xs) x = QueueImpl (xs ++ [x])
 
   dequeue (QueueImpl (x:xs)) = (x, QueueImpl xs)
-
