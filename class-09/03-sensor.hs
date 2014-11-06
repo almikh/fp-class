@@ -1,5 +1,6 @@
 import System.Environment
 import Data.Monoid
+import Data.Maybe
 
 {-
   Некоторый датчик генерирует по пять сигналов в сутки, часть из которых
@@ -15,12 +16,13 @@ type SensorData = [SensorValue]
    значений, полученных от датчика. -}
 
 getData :: String -> SensorData
-getData = undefined . lines
+getData = map (\x -> if x=="-" then Nothing else Just (read x :: Int)) . lines
 
 {- Напишите функцию, группирующую данные по суткам. -}
 
 dataByDay :: SensorData -> [SensorData]
-dataByDay = undefined
+dataByDay [] = []
+dataByDay xs = (take 5 xs) : dataByDay (drop 5 xs)
 
 {-
   Посчитайте минимальное значение среди показаний датчика,
@@ -35,8 +37,15 @@ dataByDay = undefined
   в зависимости от значения логического параметра.
 -}
 
+ignoreBadDays :: [SensorData] -> [SensorData]
+ignoreBadDays = filter (any isJust)
+
 minData1 :: Bool -> [SensorData] -> Int
-minData1 needFirst = minimum . undefined
+minData1 needFirst = fromJust . minimum . filter isJust . map select . ignoreBadDays
+  where
+    select
+      | needFirst==True = getFirst . mconcat . map First
+      | otherwise = getLast . mconcat . map Last
 
 {-
   Посчитайте минимальное значение среди данных,
@@ -52,14 +61,23 @@ minData1 needFirst = minimum . undefined
 -}
 
 minData2 :: Bool -> [SensorData] -> Int
-minData2 needSum = minimum . undefined
+minData2 needSum = minimum . map select . ignoreBadDays
+  where
+    select
+      | needSum==True = getSum . mconcat . map (Sum . fromJust) . filter (isJust)
+      | otherwise = getProduct . mconcat . map (Product . fromJust) . filter (isJust)
 
 {- Попробуйте объединить две предыдущие функции в одну. -}
 
 data SensorTask = NeedFirst | NeedLast | NeedSum | NeedProduct
+  deriving Eq
 
 minData :: SensorTask -> [SensorData] -> Int
-minData st = minimum . undefined
+minData st
+  | st==NeedFirst = minData1 True
+  | st==NeedLast = minData1 False
+  | st==NeedSum = minData2 True
+  | otherwise = minData2 False
 
 {-
   Пользуясь моноидами All, Any и любыми другими, выясните следующую информацию:
@@ -73,8 +91,31 @@ minData st = minimum . undefined
 
   Постарайтесь ответить на все вопросы, написав одну функцию.
 -}
+stat :: Int -> Int -> [SensorData] -> Int
+stat 1 _ = length . filter (getAll . mconcat . map All . map isNothing)
+stat 2 _ = length . filter (getAll . mconcat . map All . map isJust)
+stat 3 _ = length . filter (getAny . mconcat . map Any . map isJust)
+stat 4 num = length . filter filterFunc
+  where filterFunc x = (getSum . mconcat . map (Sum . fromJust) . filter (isJust)) x > num
+stat 5 num = length . filter filterFunc
+  where filterFunc x = (getProduct . mconcat . map (Product . fromJust) . filter (isJust)) x > num
+stat 6 num = length . filter (\x -> (getFirst . mconcat . map First) x > Just num)
+stat 7 num = length . filter (\x -> (getLast . mconcat . map Last) x > Just num)
 
 main = do
   fname <- head `fmap` getArgs
-  sData <- getData `fmap` readFile fname
-  undefined
+  let num = 44
+  sData <- stat 1 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 2 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 3 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 4 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 5 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 6 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
+  sData <- stat 7 num `fmap` dataByDay `fmap` getData `fmap` readFile fname
+  print sData
