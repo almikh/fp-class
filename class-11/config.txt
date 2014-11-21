@@ -1,0 +1,5 @@
+summand=12
+multiplier=2
+divisor=4
+summand=45
+multiplier=6
