@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 import Parser
 import SimpleParsers
 import Control.Applicative hiding (many, optional)
@@ -16,9 +18,14 @@ import Control.Monad
 
 data Scheme = FTP | HTTP | HTTPS | Unk String
               deriving Show
-type Server = String
 type Path = String
-data URL = URL Scheme Server Path
+type Login = String
+type Password = String
+type Host = String
+type Port = String
+type Params = String
+type Anchor = String
+data URL = URL Scheme (Login, Password) (Host, Port) Path Params Anchor
            deriving Show
 
 scheme = (string "https" >> return HTTPS) <|>
@@ -26,7 +33,35 @@ scheme = (string "https" >> return HTTPS) <|>
          (string "ftp" >> return FTP) <|>
          Unk `liftM` lowers
 
+loginAndPassword :: Parser (Login, Password)
+loginAndPassword = (,) <$> login <*> password
+  where
+  login = many (sat (/=':'))
+  password = char ':' >> many (sat (/='@'))
+
+hostAndPort :: Parser (Host, Port)
+hostAndPort = (,) <$> host <*> optional "" port
+  where
+    host = char '@' >> many (sat (\x -> x/=':' && x/='/'))
+    port = char ':' >> many (sat (\x -> x/='/' && x/='?'))
+
+path :: Parser Path
+path = char '/' >> many (sat (/='?'))
+
+params :: Parser Params
+params = char '?' >> many (sat (/='#'))
+
+anchor :: Parser Anchor
+anchor = char '#' >> many (sat (const True))
+
+
 url = URL <$>
       scheme <*>
-      (string "://" >> many1 (sat (/='/'))) <*>
-      many (sat $ const True)
+      (string "://" >> loginAndPassword) <*>
+      hostAndPort <*>
+      optional "" path <*>
+      optional "" params <*>
+      optional "" anchor
+
+testUrl1 = parse url "https://root:admin@www.host.com:80?params#anchor"
+testUrl2 = parse url "ftp://root:admin@www.host.com/'sfdasds/sadf'?params"
