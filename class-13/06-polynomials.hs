@@ -14,9 +14,6 @@ import Data.Char
 import System.Directory
 import System.Environment
 
-import Control.Monad.Writer
-import Data.Monoid
-
 {-
    Определите тип для многочлена с вещественными коэффициентами.
 -}
